@@ -1,0 +1,1524 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>A Little World Made for Dayan</title>
+    <meta name="theme-color" content="#F8DCE8" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Nunito:wght@400;600;800&family=Playfair+Display:ital,wght@0,600;0,800;1,500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* ═══════════════════════════════════════
+         CSS · 0 COLOURS + FONTS  ← change colours here
+         ═══════════════════════════════════════ */
+      :root {
+        --blush: #f8dce8;
+        --baby: #fceaf1;
+        --lav: #e8e0f7;
+        --cream: #fff9f3;
+        --peach: #f9e3d6;
+        --rose: #c987a6;
+        --purple: #a99bcb;
+        --white: #fff;
+        --ink: #5a3f52;
+        --serif: "Playfair Display", Georgia, serif;
+        --hand: "Caveat", "Segoe Print", cursive;
+        --sans: "Nunito", system-ui, sans-serif;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        font-family: var(--sans);
+        color: var(--ink);
+        background: var(--cream);
+        line-height: 1.6;
+        overflow-x: hidden;
+        -webkit-tap-highlight-color: transparent;
+      }
+      body.locked {
+        overflow: hidden;
+      }
+      button {
+        font: inherit;
+        cursor: pointer;
+        border: 0;
+        color: inherit;
+      }
+      :focus-visible {
+        outline: 3px solid var(--purple);
+        outline-offset: 3px;
+      }
+      h1,
+      h2 {
+        font-family: var(--serif);
+        line-height: 1.15;
+      }
+      h2 {
+        font-size: clamp(1.8rem, 7vw, 2.8rem);
+        text-align: center;
+        margin-bottom: 0.4rem;
+      }
+      .hand {
+        font-family: var(--hand);
+        font-size: 1.4rem;
+        color: var(--rose);
+      }
+      .btn {
+        background: var(--rose);
+        color: #fff;
+        padding: 0.9rem 1.6rem;
+        border-radius: 99px;
+        font-weight: 800;
+        min-height: 48px;
+        box-shadow: 0 6px 18px rgba(201, 135, 166, 0.4);
+        transition: transform 0.2s;
+      }
+      .btn:hover {
+        transform: translateY(-2px) rotate(-1deg);
+      }
+      .btn:disabled {
+        opacity: 0.55;
+        cursor: default;
+        transform: none;
+      }
+      .btn.alt {
+        background: var(--white);
+        color: var(--rose);
+      }
+      section {
+        padding: 4.5rem 1.1rem;
+        position: relative;
+        overflow: hidden;
+      }
+      .wrap {
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+      .sub {
+        text-align: center;
+        font-family: var(--hand);
+        font-size: 1.5rem;
+        color: var(--rose);
+        margin-bottom: 2rem;
+      }
+      #bar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 4px;
+        width: 0;
+        background: linear-gradient(90deg, var(--rose), var(--purple));
+        z-index: 60;
+      }
+      #top {
+        position: fixed;
+        right: 14px;
+        bottom: calc(14px + env(safe-area-inset-bottom));
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        background: var(--white);
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+        opacity: 0;
+        pointer-events: none;
+        transition: 0.3s;
+        z-index: 40;
+      }
+      #top.on {
+        opacity: 1;
+        pointer-events: auto;
+      }
+      canvas#fx {
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 90;
+      }
+      .fl {
+        position: absolute;
+        pointer-events: none;
+        opacity: 0.7;
+        animation: fl linear infinite;
+        z-index: 0;
+      }
+      @keyframes fl {
+        0% {
+          transform: translateY(0) rotate(0);
+          opacity: 0;
+        }
+        15% {
+          opacity: 0.7;
+        }
+        100% {
+          transform: translateY(-110vh) rotate(40deg);
+          opacity: 0;
+        }
+      }
+      /* ═══════════════════════════════════════
+         CSS · 1 WELCOME ENVELOPE
+         ═══════════════════════════════════════ */
+      #welcome {
+        position: fixed;
+        inset: 0;
+        z-index: 80;
+        background: radial-gradient(circle at 30% 20%, var(--baby), var(--blush) 60%, var(--lav));
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 1.2rem;
+        transition:
+          opacity 0.9s,
+          transform 0.9s;
+      }
+      #welcome.gone {
+        opacity: 0;
+        transform: scale(1.15);
+        pointer-events: none;
+      }
+      #welcome h1 {
+        font-size: clamp(2.2rem, 10vw, 4rem);
+        position: relative;
+      }
+      #welcome p {
+        position: relative;
+        margin: 0.4rem 0 1.4rem;
+      }
+      .env {
+        position: relative;
+        width: min(260px, 70vw);
+        aspect-ratio: 1.45;
+        margin: 1rem auto 1.8rem;
+        z-index: 1;
+      }
+      .env .back,
+      .env .front {
+        position: absolute;
+        inset: 0;
+        border-radius: 10px;
+      }
+      .env .back {
+        background: var(--rose);
+        box-shadow: 0 12px 28px rgba(150, 80, 110, 0.3);
+      }
+      .env .paper {
+        position: absolute;
+        left: 8%;
+        right: 8%;
+        top: 6%;
+        height: 80%;
+        background: var(--white);
+        border-radius: 6px;
+        display: grid;
+        place-items: center;
+        font-family: var(--hand);
+        font-size: 1.5rem;
+        transition: transform 0.8s 0.4s;
+        text-align: center;
+      }
+      .env .front {
+        background:
+          linear-gradient(150deg, transparent 49%, #d99ab6 50%) left/50% 100% no-repeat,
+          linear-gradient(210deg, transparent 49%, #d99ab6 50%) right/50% 100% no-repeat;
+        clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+      }
+      .env .flap {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        height: 55%;
+        background: #b9708f;
+        clip-path: polygon(0 0, 100% 0, 50% 100%);
+        transform-origin: top;
+        transition: transform 0.6s;
+        z-index: 3;
+      }
+      .env .heart {
+        position: absolute;
+        left: 50%;
+        top: 48%;
+        transform: translate(-50%, -50%);
+        z-index: 4;
+        font-size: 1.6rem;
+      }
+      .open .flap {
+        transform: rotateX(180deg);
+        z-index: 0;
+      }
+      .open .paper {
+        transform: translateY(-55%);
+      }
+      .open .heart {
+        opacity: 0;
+      }
+      /* ═══════════════════════════════════════
+         CSS · 2 BIRTHDAY HERO
+         ═══════════════════════════════════════ */
+      #hero {
+        min-height: 100svh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        background: linear-gradient(var(--baby), var(--peach));
+      }
+      #hero h1 {
+        font-size: clamp(2.6rem, 12vw, 5.5rem);
+        color: var(--rose);
+      }
+      #hero .lead {
+        max-width: 30ch;
+        margin: 1rem auto 0;
+        font-size: 1.1rem;
+      }
+      .bal {
+        display: flex;
+        justify-content: center;
+        gap: 14px;
+        margin-bottom: 1rem;
+      }
+      .bal i {
+        width: 44px;
+        height: 56px;
+        border-radius: 50% 50% 48% 48%;
+        display: block;
+        animation: bob 3s ease-in-out infinite;
+        position: relative;
+      }
+      .bal i:after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        top: 100%;
+        height: 34px;
+        width: 1px;
+        background: var(--rose);
+      }
+      .bal i:nth-child(2) {
+        animation-delay: 0.5s;
+      }
+      .bal i:nth-child(3) {
+        animation-delay: 1s;
+      }
+      @keyframes bob {
+        50% {
+          transform: translateY(-10px) rotate(3deg);
+        }
+      }
+      .scroll {
+        margin-top: 2.5rem;
+        display: block;
+        font-family: var(--hand);
+        font-size: 1.5rem;
+        animation: bob 2s infinite;
+      }
+      /* ═══════════════════════════════════════
+         CSS · 3 PHOTO GALLERY
+         ═══════════════════════════════════════ */
+      #gallery {
+        background: var(--cream);
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.1rem 0.8rem;
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+      @media (min-width: 760px) {
+        .grid {
+          grid-template-columns: repeat(4, 1fr);
+          gap: 1.6rem 1.2rem;
+        }
+      }
+      .pol {
+        background: var(--white);
+        padding: 7px 7px 0;
+        border-radius: 3px;
+        box-shadow: 0 6px 16px rgba(120, 70, 100, 0.18);
+        transform: rotate(var(--r, 0deg));
+        transition: transform 0.25s;
+        text-align: center;
+        width: 100%;
+        position: relative;
+      }
+      .pol:hover {
+        transform: rotate(0) scale(1.04);
+        z-index: 2;
+      }
+      .pol .ph {
+        aspect-ratio: var(--ar, 1);
+        background: var(--lav);
+        overflow: hidden;
+        display: grid;
+        place-items: center;
+        font-size: 2rem;
+      }
+      .pol img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+      .pol .cap {
+        font-family: var(--hand);
+        font-size: 1.1rem;
+        padding: 0.4rem 0.1rem 0.5rem;
+        line-height: 1.15;
+        color: var(--ink);
+      }
+      .pol:before {
+        content: "";
+        position: absolute;
+        top: -8px;
+        left: 50%;
+        width: 50px;
+        height: 16px;
+        margin-left: -25px;
+        background: rgba(201, 135, 166, 0.35);
+        transform: rotate(-3deg);
+      }
+      .pol:nth-child(3n + 1) {
+        --r: -2.5deg;
+        --ar: 0.85;
+      }
+      .pol:nth-child(3n + 2) {
+        --r: 2deg;
+        --ar: 1;
+      }
+      .pol:nth-child(3n) {
+        --r: -1deg;
+        --ar: 1.2;
+      }
+      /* ═══════════════════════════════════════
+         CSS · 3b PHOTO LIGHTBOX
+         ═══════════════════════════════════════ */
+      #lb {
+        position: fixed;
+        inset: 0;
+        background: rgba(60, 30, 50, 0.88);
+        z-index: 100;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        padding: 1rem;
+      }
+      #lb.on {
+        display: flex;
+      }
+      #lb figure {
+        max-width: min(94vw, 700px);
+        text-align: center;
+        color: #fff;
+      }
+      #lb .ph {
+        max-height: 68svh;
+        display: grid;
+        place-items: center;
+        font-size: 4rem;
+        background: var(--lav);
+        border-radius: 6px;
+        min-height: 200px;
+        min-width: min(80vw, 320px);
+      }
+      #lb img {
+        max-width: 100%;
+        max-height: 68svh;
+        object-fit: contain;
+        border-radius: 6px;
+      }
+      #lb figcaption {
+        font-family: var(--hand);
+        font-size: 1.6rem;
+        margin-top: 0.7rem;
+      }
+      .lbb {
+        position: absolute;
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: var(--white);
+        font-size: 1.4rem;
+      }
+      #lbx {
+        top: max(12px, env(safe-area-inset-top));
+        right: 12px;
+      }
+      #lbp {
+        left: 8px;
+        top: 50%;
+      }
+      #lbn {
+        right: 8px;
+        top: 50%;
+      }
+      /* ═══════════════════════════════════════
+         CSS · 4 TIMELINE
+         ═══════════════════════════════════════ */
+      #timeline {
+        background: linear-gradient(var(--cream), var(--lav));
+      }
+      .tl {
+        max-width: 640px;
+        margin: 0 auto;
+        border-left: 3px dashed var(--rose);
+        padding-left: 1.3rem;
+      }
+      .tl article {
+        background: var(--white);
+        border-radius: 14px;
+        padding: 1rem;
+        margin-bottom: 1.4rem;
+        box-shadow: 0 4px 14px rgba(120, 70, 100, 0.12);
+        position: relative;
+      }
+      .tl article:before {
+        content: "♥";
+        position: absolute;
+        left: -2.1rem;
+        top: 0.9rem;
+        color: var(--rose);
+        background: var(--lav);
+        font-size: 1rem;
+      }
+      .tl .d {
+        font-family: var(--hand);
+        font-size: 1.3rem;
+        color: var(--purple);
+      }
+      .tl .note {
+        font-family: var(--hand);
+        color: var(--rose);
+        font-size: 1.2rem;
+        transform: rotate(-2deg);
+        display: inline-block;
+      }
+      /* ═══════════════════════════════════════
+         CSS · 5 THINGS ABOUT YOU CARDS
+         ═══════════════════════════════════════ */
+      #things {
+        background: var(--baby);
+      }
+      .cards {
+        display: grid;
+        gap: 1rem;
+        grid-template-columns: 1fr;
+        max-width: 900px;
+        margin: 0 auto;
+      }
+      @media (min-width: 700px) {
+        .cards {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+      .card {
+        background: var(--white);
+        border-radius: 6px;
+        padding: 1.2rem 1rem;
+        box-shadow: 0 5px 14px rgba(120, 70, 100, 0.15);
+        transform: rotate(var(--r, 0));
+        text-align: center;
+        min-height: 130px;
+        transition: transform 0.25s;
+        font-family: var(--serif);
+        font-weight: 600;
+        font-size: 1.05rem;
+        position: relative;
+      }
+      .card:nth-child(odd) {
+        --r: -1.5deg;
+        background: var(--peach);
+      }
+      .card:nth-child(even) {
+        --r: 1.5deg;
+      }
+      .card:hover {
+        transform: rotate(0) translateY(-4px);
+      }
+      .card .msg {
+        display: block;
+        max-height: 0;
+        opacity: 0;
+        overflow: hidden;
+        font-family: var(--hand);
+        font-weight: 500;
+        font-size: 1.3rem;
+        color: var(--rose);
+        transition:
+          max-height 0.5s,
+          opacity 0.5s,
+          margin 0.5s;
+        line-height: 1.2;
+      }
+      .card.open .msg {
+        max-height: 260px;
+        opacity: 1;
+        margin-top: 0.7rem;
+      }
+      .card small {
+        display: block;
+        font-family: var(--sans);
+        font-weight: 400;
+        font-size: 0.8rem;
+        opacity: 0.6;
+        margin-top: 0.4rem;
+      }
+      .card.open small {
+        display: none;
+      }
+      /* ═══════════════════════════════════════
+         CSS · 6 OPEN WHEN ENVELOPES
+         ═══════════════════════════════════════ */
+      #openwhen {
+        background: var(--lav);
+      }
+      .ow {
+        display: grid;
+        gap: 1.4rem;
+        max-width: 560px;
+        margin: 0 auto;
+      }
+      .oe {
+        background: none;
+        width: 100%;
+        text-align: center;
+      }
+      .oe .e {
+        position: relative;
+        height: 130px;
+        background: var(--rose);
+        border-radius: 10px;
+        box-shadow: 0 8px 20px rgba(120, 70, 100, 0.25);
+        display: grid;
+        place-items: center;
+        padding: 1rem;
+        color: #fff;
+        font-family: var(--serif);
+        font-weight: 600;
+      }
+      .oe .e:before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: #b9708f;
+        clip-path: polygon(0 0, 100% 0, 50% 58%);
+        border-radius: 10px;
+        transform-origin: top;
+        transition: transform 0.5s;
+      }
+      .oe .e span {
+        position: relative;
+        z-index: 2;
+        margin-top: 34px;
+      }
+      .oe.open .e:before {
+        transform: rotateX(180deg);
+      }
+      .oe .l {
+        background: #fffef8;
+        margin: 0 6%;
+        border-radius: 0 0 8px 8px;
+        padding: 0 1rem;
+        max-height: 0;
+        overflow: hidden;
+        font-family: var(--hand);
+        font-size: 1.4rem;
+        line-height: 1.25;
+        text-align: left;
+        transition:
+          max-height 0.7s,
+          padding 0.7s;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+        background-image: repeating-linear-gradient(transparent 0 31px, #f1dbe5 31px 32px);
+      }
+      .oe.open .l {
+        max-height: 420px;
+        padding: 1rem;
+      }
+      /* ═══════════════════════════════════════
+         CSS · 7 CAKE
+         ═══════════════════════════════════════ */
+      #cakes {
+        background: linear-gradient(var(--lav), var(--blush));
+        text-align: center;
+      }
+      #cake {
+        width: min(280px, 75vw);
+        margin: 1rem auto;
+        display: block;
+        overflow: visible;
+      }
+      .fire {
+        transform-origin: 50% 100%;
+        animation: fk 0.35s infinite alternate;
+        transition:
+          opacity 0.4s,
+          transform 0.4s;
+      }
+      @keyframes fk {
+        to {
+          transform: scale(1.15, 0.9) rotate(3deg);
+        }
+      }
+      .out .fire {
+        opacity: 0;
+        transform: scale(0);
+      }
+      .wish {
+        min-height: 3.6rem;
+        font-family: var(--hand);
+        font-size: 1.7rem;
+        color: var(--rose);
+        opacity: 0;
+        transition: opacity 1s;
+      }
+      .wish.on {
+        opacity: 1;
+      }
+      /* ═══════════════════════════════════════
+         CSS · 8 MUSIC PLAYER
+         ═══════════════════════════════════════ */
+      #music {
+        position: fixed;
+        left: 12px;
+        bottom: calc(12px + env(safe-area-inset-bottom));
+        z-index: 45;
+        background: var(--white);
+        border-radius: 99px;
+        padding: 6px 12px 6px 6px;
+        display: none;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+        font-size: 0.85rem;
+        max-width: calc(100vw - 80px);
+      }
+      #music.on {
+        display: flex;
+      }
+      #music button {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--rose);
+        color: #fff;
+      }
+      #music .t {
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
+      #music .eq {
+        display: flex;
+        gap: 2px;
+        align-items: flex-end;
+        height: 14px;
+      }
+      #music .eq i {
+        width: 3px;
+        height: 4px;
+        background: var(--rose);
+      }
+      #music.play .eq i {
+        animation: eq 0.6s infinite alternate;
+      }
+      #music.play .eq i:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+      #music.play .eq i:nth-child(3) {
+        animation-delay: 0.4s;
+      }
+      @keyframes eq {
+        to {
+          height: 14px;
+        }
+      }
+      /* ═══════════════════════════════════════
+         CSS · 9 LETTER
+         ═══════════════════════════════════════ */
+      #letter {
+        background: var(--peach);
+        text-align: center;
+      }
+      .seal {
+        position: relative;
+        width: min(280px, 75vw);
+        aspect-ratio: 1.45;
+        margin: 1rem auto 1.5rem;
+        background: var(--blush);
+        border-radius: 10px;
+        box-shadow: 0 10px 24px rgba(120, 70, 100, 0.25);
+        transition:
+          opacity 0.5s,
+          transform 0.5s;
+      }
+      .seal:before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: #e9b9cf;
+        clip-path: polygon(0 0, 100% 0, 50% 60%);
+        border-radius: 10px;
+      }
+      .seal b {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        width: 54px;
+        height: 54px;
+        border-radius: 50%;
+        background: #a8506f;
+        color: #f6d6e2;
+        display: grid;
+        place-items: center;
+        font-size: 1.5rem;
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+      }
+      .seal.gone {
+        opacity: 0;
+        transform: translateY(-30px) scale(0.9);
+        height: 0;
+        margin: 0;
+        overflow: hidden;
+        aspect-ratio: auto;
+      }
+      .paper {
+        background: var(--cream);
+        max-width: 620px;
+        margin: 0 auto;
+        border-radius: 6px;
+        box-shadow: 0 12px 30px rgba(120, 70, 100, 0.25);
+        text-align: left;
+        padding: 0 1.4rem;
+        max-height: 0;
+        overflow: hidden;
+        transition:
+          max-height 1.6s,
+          padding 1s;
+        background-image: repeating-linear-gradient(transparent 0 35px, #f3e1e8 35px 36px);
+      }
+      .paper.on {
+        max-height: 2600px;
+        padding: 1.6rem 1.4rem;
+      }
+      .paper h3 {
+        font-family: var(--hand);
+        font-size: 2.2rem;
+        color: var(--rose);
+      }
+      .paper p {
+        font-family: var(--hand);
+        font-size: 1.45rem;
+        line-height: 36px;
+        margin-bottom: 36px;
+      }
+      .paper .sig {
+        white-space: pre-line;
+        text-align: right;
+        color: var(--rose);
+        margin: 0;
+      }
+      /* ═══════════════════════════════════════
+         CSS · 10 FINAL SCREEN + EXTRAS
+         ═══════════════════════════════════════ */
+      #final {
+        min-height: 100svh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        background: linear-gradient(var(--blush), var(--lav) 70%, var(--baby));
+      }
+      #final h2 {
+        font-size: clamp(2rem, 8vw, 3.4rem);
+      }
+      #final p {
+        max-width: 28ch;
+        margin: 0.8rem auto;
+        font-size: 1.15rem;
+        position: relative;
+      }
+      .rv {
+        opacity: 0;
+        transform: translateY(24px);
+        transition:
+          opacity 0.8s,
+          transform 0.8s;
+      }
+      .rv.in {
+        opacity: 1;
+        transform: none;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          animation: none !important;
+          transition-duration: 0.01ms !important;
+        }
+        .fl {
+          display: none;
+        }
+        html {
+          scroll-behavior: auto;
+        }
+        .rv {
+          opacity: 1;
+          transform: none;
+        }
+      }
+    </style>
+  </head>
+  <!--
+  ╔══════════════════════════════════════════════════════════╗
+  ║  FILE MAP — where to edit what (Ctrl+F the tag name)      ║
+  ╠══════════════════════════════════════════════════════════╣
+  ║  Colours / fonts ........ "CSS · 0 COLOURS"               ║
+  ║  ALL TEXT, PHOTOS, LETTER, MUSIC ... "EDIT HERE" (JS)     ║
+  ║  Welcome screen text ..... "SECTION 1" (HTML)             ║
+  ║  Section headings ........ "SECTION 2…10" (HTML)          ║
+  ║  Styling of each section . "CSS · 1…10"                   ║
+  ║  Behaviour (rarely edit) . "JS · B…J"                     ║
+  ╚══════════════════════════════════════════════════════════╝
+-->
+<body class="locked">
+    <div id="bar" aria-hidden="true"></div>
+    <canvas id="fx" aria-hidden="true"></canvas>
+
+    <!-- ═════ SECTION 1 · WELCOME ═════ -->
+    <div id="welcome">
+      <h1>Heyyy <span class="nm">Suarr</span>! 🎀</h1>
+      <p>A little something has been made just for you...</p>
+      <div class="env" id="wenv" aria-hidden="true">
+        <div class="back"></div>
+        <div class="paper">for you 💗</div>
+        <div class="front"></div>
+        <div class="flap"></div>
+        <span class="heart">💗</span>
+      </div>
+      <p class="hand">psst... it's not a virus, I promise ✨</p>
+      <button class="btn" id="openBtn">Open Your Surprise 💌</button>
+    </div>
+
+    <main id="main" hidden>
+      <!-- ═════ SECTION 2 · HERO ═════ -->
+      <section id="hero">
+        <div>
+          <div class="bal" aria-hidden="true">
+            <i style="background: var(--blush)"></i><i style="background: var(--lav)"></i
+            ><i style="background: var(--peach)"></i>
+          </div>
+          <p class="hand" id="heroSmall"></p>
+          <h1 id="heroTitle"></h1>
+          <p class="hand" style="font-size: 1.8rem">Today, the spotlight belongs to you.</p>
+          <p class="lead" id="heroMsg"></p>
+          <span class="scroll">There's more waiting for you ↓</span>
+        </div>
+      </section>
+
+      <!-- ═════ SECTION 3 · GALLERY ═════ -->
+      <section id="gallery">
+        <div class="wrap">
+          <h2 class="rv">A collection of little moments...</h2>
+          <p class="sub rv">tap a photo to see it bigger</p>
+          <div class="grid" id="grid"></div>
+        </div>
+      </section>
+
+      <!-- ═════ SECTION 4 · TIMELINE ═════ -->
+      <section id="timeline">
+        <div class="wrap">
+          <h2 class="rv" id="tlTitle">Little moments, big memories.</h2>
+          <p class="sub rv" id="tlSub">a few things worth remembering</p>
+          <div class="tl" id="tl"></div>
+        </div>
+      </section>
+
+      <!-- ═════ SECTION 5 · THINGS ABOUT YOU ═════ -->
+      <section id="things">
+        <div class="wrap">
+          <h2 class="rv">Some things you should know... 💗</h2>
+          <p class="sub rv">tap a card</p>
+          <div class="cards" id="cards"></div>
+        </div>
+      </section>
+
+      <!-- ═════ SECTION 6 · OPEN WHEN ═════ -->
+      <section id="openwhen">
+        <div class="wrap">
+          <h2 class="rv">Open when... 💌</h2>
+          <p class="sub rv">three little envelopes</p>
+          <div class="ow" id="ow"></div>
+        </div>
+      </section>
+
+      <!-- ═════ SECTION 7 · CAKE ═════ -->
+      <section id="cakes">
+        <div class="wrap">
+          <h2>Okay birthday girl, make a wish!</h2>
+          <svg
+            id="cake"
+            viewBox="0 0 200 190"
+            role="img"
+            aria-label="Birthday cake with three candles"
+          >
+            <ellipse cx="100" cy="178" rx="92" ry="8" fill="#c987a6" opacity=".25" />
+            <rect x="22" y="120" width="156" height="52" rx="10" fill="#F9E3D6" />
+            <path
+              d="M22 134q13 14 26 0t26 0 26 0 26 0 26 0 26 0v-8q0-6-6-6H28q-6 0-6 6z"
+              fill="#fff"
+            />
+            <rect x="44" y="76" width="112" height="46" rx="10" fill="#FCEAF1" />
+            <path d="M44 90q14 14 28 0t28 0 28 0 28 0v-8q0-6-6-6H50q-6 0-6 6z" fill="#C987A6" />
+            <g fill="#A99BCB">
+              <circle cx="60" cy="108" r="2.5" />
+              <circle cx="90" cy="112" r="2.5" />
+              <circle cx="120" cy="106" r="2.5" />
+              <circle cx="145" cy="112" r="2.5" />
+            </g>
+            <g fill="#C987A6">
+              <circle cx="50" cy="150" r="2.5" />
+              <circle cx="85" cy="158" r="2.5" />
+              <circle cx="118" cy="150" r="2.5" />
+              <circle cx="152" cy="158" r="2.5" />
+            </g>
+            <g>
+              <rect x="70" y="48" width="9" height="28" rx="2" fill="#E8E0F7" />
+              <rect x="95" y="44" width="9" height="32" rx="2" fill="#F8DCE8" />
+              <rect x="121" y="48" width="9" height="28" rx="2" fill="#E8E0F7" />
+              <path class="fire" d="M74.500 28q7 9 0 18q-7-9 0-18z" fill="#ffb84d" />
+              <path
+                class="fire"
+                d="M99.500 24q7 9 0 18q-7-9 0-18z"
+                fill="#ffb84d"
+                style="animation-delay: 0.1s"
+              />
+              <path
+                class="fire"
+                d="M125.500 28q7 9 0 18q-7-9 0-18z"
+                fill="#ffb84d"
+                style="animation-delay: 0.2s"
+              />
+            </g>
+          </svg>
+          <p class="wish" id="wish" aria-live="polite"></p>
+          <button class="btn" id="blow">Blow the Candles ✨</button>
+          <button class="btn alt" id="relight" hidden>Light them again 🕯️</button>
+        </div>
+      </section>
+
+      <!-- ═════ SECTION 9 · LETTER ═════ -->
+      <section id="letter">
+        <div class="wrap">
+          <h2>Before you go...</h2>
+          <div class="seal" id="seal"><b>♥</b></div>
+          <button class="btn" id="readBtn">Read your little letter 💌</button>
+          <div class="paper" id="paper" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <!-- ═════ SECTION 10 · FINAL ═════ -->
+      <section id="final">
+        <div>
+          <h2>That's all for now, <span class="nm">Dayan</span>...</h2>
+          <p>I hope this little corner of the internet made you smile.</p>
+          <p>Keep smiling, keep shining, and never stop being your wonderfully chaotic self.</p>
+          <p class="hand" style="font-size: 2rem">Happy Birthday once again! 🎀</p>
+          <br /><button class="btn" id="replay">Replay from the start 🔁</button>
+        </div>
+      </section>
+    </main>
+
+    <div id="lb" role="dialog" aria-modal="true" aria-label="Photo viewer">
+      <button class="lbb" id="lbx" aria-label="Close">✕</button>
+      <button class="lbb" id="lbp" aria-label="Previous photo">‹</button>
+      <button class="lbb" id="lbn" aria-label="Next photo">›</button>
+      <figure>
+        <div id="lbimg"></div>
+        <figcaption id="lbcap"></figcaption>
+      </figure>
+    </div>
+
+    <!-- SECTION 8 · MUSIC PLAYER (text comes from config) -->
+    <div id="music">
+      <button id="mbtn" aria-label="Play or pause music">▶</button
+      ><span class="eq" aria-hidden="true"><i></i><i></i><i></i></span
+      ><span class="t" id="mt"></span
+      ><button
+        id="mmute"
+        aria-label="Mute"
+        style="width: 32px; height: 32px; background: var(--lav); color: var(--ink)"
+      >
+        🔊
+      </button>
+    </div>
+    <button id="top" aria-label="Back to top">↑</button>
+
+    <script>
+      // ═══ JS · A  ✏️ EDIT HERE — ALL YOUR TEXT, PHOTOS AND SETTINGS ═══
+      /* =====================================================================
+   ✏️ EDIT HERE — EVERYTHING PERSONAL LIVES IN THIS ONE OBJECT ✏️
+   - PHOTOS: put files in  assets/dayan/  and list them in `photos`.
+     To add more, copy a line. To replace, keep the name or change `src`.
+     Missing files show a cute placeholder (no broken icons).
+   - CAPTIONS: edit the `cap` text of each photo.
+   - BIRTHDAY MESSAGE: `heroMessage`.
+   - LETTER: edit the `letter` lines (each string = one paragraph).
+   - TIMELINE: add/remove objects in `timeline` (leave date "" to hide it).
+     Set `showTimeline:false` to hide the whole section.
+   - MUSIC: put an mp3 you have rights to at `audio`, set `trackTitle`.
+     Leave audio:"" to hide the player.
+   - COLOURS: change the variables at the top of the <style> tag (:root).
+   ===================================================================== */
+      const CFG = {
+        name: "Suarr",
+        birthday: "24 November",
+        heroMessage:
+          "Another year of being iconic, dramatic, adorable, and occasionally impossible to handle. Song koh ignore kro aur koi samjh hi nhi aaya.",
+        photos: [
+          {
+            src: "assets/dayan/photo-01.jpg",
+            cap: "A little moment worth keeping.",
+            alt: "Photo 1",
+          },
+          {
+            src: "assets/dayan/photo-02.jpg",
+            cap: "This one deserves a place here.",
+            alt: "Photo 2",
+          },
+          {
+            src: "assets/dayan/photo-03.jpg",
+            cap: "Cutiee✨.",
+            alt: "Photo 3",
+          },
+          {
+            src: "assets/dayan/photo-04.jpg",
+            cap: "A random day, a lovely memory.",
+            alt: "Photo 4",
+          },
+          { src: "assets/dayan/photo-05.jpg", cap: "cutee nailpaint.", alt: "Photo 5" },
+          { src: "assets/dayan/photo-06.jpg", cap: "Proof that we have some good memories.", alt: "Photo 6" },
+          { src: "assets/dayan/photo-07.jpg", cap: "2 Janwarrr", alt: "Photo 7" },
+          { src: "assets/dayan/photo-08.jpg", cap: "Sundariii", alt: "Photo 8" },
+          { src: "assets/dayan/photo-09.jpg", cap: "Suarrrr🐷", alt: "Photo 9" },
+          { src: "assets/dayan/photo-10.jpg", cap: "😒", alt: "Photo 10" },
+          { src: "assets/dayan/photo-11.jpg", cap: "Usss ✨💕", alt: "Photo 11" },
+          { src: "assets/dayan/photo-12.jpg", cap: "slayingg queennn", alt: "Photo 12" },
+        ],
+        showTimeline: true,
+        timeline: [
+          {
+            date: "19/11/2026",
+            text: "woh humara walking ydd rahegaa woh best thaa mausam bhi badhiyaa thaa felt like therapyy",
+            note: "← Dayan",
+          },
+          { date: "", text: "Humara first meeting woh awkwardness sb ydd hi rahegaa woh ice cream.", note: "✏️" },
+          { date: "", text: "phir humaraa itna jldi comfortable hona humara bond banaa best haii ", note: "💗" },
+        ],
+        cards: [
+          {
+            title: "Your smile deserves its own fan club.",
+            msg: "Membership: unlimited. President: me. Meetings: whenever you smile.",
+          },
+          {
+            title: "Certified chaos coordinator.",
+            msg: "Your chaos has a special kind of charm. Please never organise it.",
+          },
+          {
+            title: "Professional overthinker?",
+            msg: "Friendly reminder: you are allowed to stop the 47 tabs in your brain and just enjoy today.",
+          },
+          {
+            title: "A little reminder.",
+            msg: "You are allowed to take up space, take breaks, and take the last slice.",
+          },
+          {
+            title: "Main character energy.",
+            msg: "Some people just walk in and the scene gets better. Cough. You.",
+          },
+          {
+            title: "Never underestimate yourself.",
+            msg: "You are more capable than you think. Say it with me: more capable. Good.",
+          },
+        ],
+        openWhen: [
+          {
+            title: "Open when you need a smile.",
+            msg: "Breaking news: you are doing a great job at being you. Also, somewhere a very unserious friend is proud of you. Now go drink some water and smile, dramatically.",
+          },
+          {
+            title: "Open when you're having a bad day.",
+            msg: "Bad days are real, but they are not forever. Breathe. Be gentle with yourself. You don't have to fix everything today. Rest, then try again tomorrow. You've got this.",
+          },
+          {
+            title: "Open when you need a reminder.",
+            msg: "You matter. Your kindness matters. You deserve happiness, good people, and good things coming your way. Please don't ever forget that.",
+          },
+        ],
+        wish: "May all your little wishes find their way to you.",
+        letterTitle: "Dear Anshika,",
+        letter: [
+          "Happy Birthday! Yes, I made you an entire website. No, I will not be taking questions. 😌",
+          "I know this year has been a bit of a rollercoaster, but I hope today is a reminder of how loved and appreciated you are. You bring so much joy to those around you, and I hope this birthday brings you just as much happiness, and really yrr our friendship is so unexpected kaise hum dono itna close hogye comfortable hogye sb chiz share krne lgee and really our friendship is besttt and hope ki kbhi break naa hoh yeh friendship.",
+          "I hope this year gives you more laughs than stress, more good days than bad ones, and everything you've been quietly hoping for.",
+          "Thank you for being such a good friend. Keep being your wonderfully chaotic self. Now go eat cake.",
+        ],
+        signature: "With lots of good wishes,\nYour suarr 💗",
+        audio: "assets/birthday-song.mp3",
+        trackTitle: "Happy Birthday 🎵",
+      };
+      /* ===================== END OF EDITABLE SECTION ===================== */
+
+      const $ = (s, r = document) => r.querySelector(s),
+        el = (t, c, h) => {
+          const e = document.createElement(t);
+          if (c) e.className = c;
+          if (h != null) e.textContent = h;
+          return e;
+        };
+      const reduce = matchMedia("(prefers-reduced-motion:reduce)").matches;
+
+      // ═══ JS · B CONFETTI ═══ (no need to edit below unless changing behaviour)
+      const cv = $("#fx"),
+        cx = cv.getContext("2d");
+      let parts = [],
+        raf = 0;
+      function fit() {
+        cv.width = innerWidth;
+        cv.height = innerHeight;
+      }
+      fit();
+      addEventListener("resize", fit);
+      function confetti(n = 70) {
+        if (reduce) return;
+        const cols = ["#F8DCE8", "#C987A6", "#A99BCB", "#E8E0F7", "#F9E3D6", "#fff"];
+        for (let i = 0; i < n; i++)
+          parts.push({
+            x: innerWidth / 2,
+            y: innerHeight * 0.6,
+            vx: (Math.random() - 0.5) * 12,
+            vy: -Math.random() * 13 - 3,
+            r: Math.random() * 6.3,
+            s: 5 + Math.random() * 5,
+            c: cols[i % 6],
+            l: 130,
+          });
+        if (!raf) raf = requestAnimationFrame(tick);
+      }
+      function tick() {
+        cx.clearRect(0, 0, cv.width, cv.height);
+        parts = parts.filter((p) => p.l > 0);
+        parts.forEach((p) => {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.3;
+          p.vx *= 0.99;
+          p.r += 0.2;
+          p.l--;
+          cx.save();
+          cx.globalAlpha = Math.min(1, p.l / 30);
+          cx.translate(p.x, p.y);
+          cx.rotate(p.r);
+          cx.fillStyle = p.c;
+          cx.fillRect(-p.s / 2, -p.s / 4, p.s, p.s / 2);
+          cx.restore();
+        });
+        raf = parts.length ? requestAnimationFrame(tick) : 0;
+        if (!raf) cx.clearRect(0, 0, cv.width, cv.height);
+      }
+
+      // ═══ JS · C FLOATING HEARTS ═══ (no need to edit below unless changing behaviour)
+      function floaties(root, n = 8) {
+        if (reduce) return;
+        const s = ["♥", "✦", "✧", "♡", "🎀"];
+        for (let i = 0; i < n; i++) {
+          const f = el("span", "fl", s[i % 5]);
+          f.setAttribute("aria-hidden", "true");
+          f.style.cssText = `left:${Math.random() * 95}%;bottom:-30px;font-size:${14 + Math.random() * 16}px;color:var(--rose);animation-duration:${9 + Math.random() * 9}s;animation-delay:${-Math.random() * 12}s`;
+          root.appendChild(f);
+        }
+      }
+
+      // ═══ JS · D FILLS HERO TEXT FROM CONFIG ═══ (no need to edit below unless changing behaviour)
+      document.querySelectorAll(".nm").forEach((n) => (n.textContent = CFG.name));
+      $("#heroSmall").textContent = "a very special day: " + CFG.birthday;
+      $("#heroTitle").textContent = "Happy Birthday, " + CFG.name + "!";
+      $("#heroMsg").textContent = CFG.heroMessage;
+
+      // ═══ JS · E GALLERY + LIGHTBOX ═══ (no need to edit below unless changing behaviour)
+      function photoNode(p, big) {
+        const w = el("div", "ph");
+        const i = new Image();
+        i.alt = p.alt || "Photo of friends";
+        if (!big) i.loading = "lazy";
+        i.onerror = () => {
+          w.replaceChildren(el("span", null, "📷"));
+        };
+        i.onload = () => {};
+        i.src = p.src;
+        w.appendChild(i);
+        return w;
+      }
+      const grid = $("#grid");
+      let cur = 0,
+        lastFocus = null;
+      CFG.photos.forEach((p, k) => {
+        const b = el("button", "pol");
+        b.type = "button";
+        b.style.cssText = "background:var(--white)";
+        b.setAttribute("aria-label", "Open photo " + (k + 1) + ": " + p.cap);
+        b.append(photoNode(p), el("div", "cap", p.cap));
+        b.onclick = () => showLb(k);
+        grid.appendChild(b);
+      });
+      function showLb(k) {
+        cur = (k + CFG.photos.length) % CFG.photos.length;
+        const p = CFG.photos[cur];
+        $("#lbimg").replaceChildren(photoNode(p, true));
+        $("#lbcap").textContent = p.cap;
+        if (!$("#lb").classList.contains("on")) {
+          lastFocus = document.activeElement;
+          $("#lb").classList.add("on");
+          $("#lbx").focus();
+        }
+      }
+      function closeLb() {
+        $("#lb").classList.remove("on");
+        lastFocus && lastFocus.focus();
+      }
+      $("#lbx").onclick = closeLb;
+      $("#lbp").onclick = () => showLb(cur - 1);
+      $("#lbn").onclick = () => showLb(cur + 1);
+      $("#lb").addEventListener("click", (e) => {
+        if (e.target.id === "lb") closeLb();
+      });
+      addEventListener("keydown", (e) => {
+        if (!$("#lb").classList.contains("on")) return;
+        if (e.key === "Escape") closeLb();
+        if (e.key === "ArrowLeft") showLb(cur - 1);
+        if (e.key === "ArrowRight") showLb(cur + 1);
+      });
+      let tx = 0;
+      $("#lb").addEventListener("touchstart", (e) => (tx = e.touches[0].clientX), {
+        passive: true,
+      });
+      $("#lb").addEventListener("touchend", (e) => {
+        const d = e.changedTouches[0].clientX - tx;
+        if (Math.abs(d) > 50) showLb(cur + (d < 0 ? 1 : -1));
+      });
+
+      // ═══ JS · F TIMELINE ═══ (no need to edit below unless changing behaviour)
+      if (!CFG.showTimeline || !CFG.timeline.length) $("#timeline").hidden = true;
+      else
+        CFG.timeline.forEach((t) => {
+          const a = el("article", "rv");
+          if (t.date) a.appendChild(el("div", "d", t.date));
+          a.appendChild(el("p", null, t.text));
+          if (t.note) a.appendChild(el("span", "note", t.note));
+          $("#tl").appendChild(a);
+        });
+
+      // ═══ JS · G CARDS, OPEN-WHEN, CAKE, LETTER ═══ (no need to edit below unless changing behaviour)
+      function buildCards() {
+        const c = $("#cards");
+        c.replaceChildren();
+        CFG.cards.forEach((d) => {
+          const b = el("button", "card");
+          b.type = "button";
+          b.setAttribute("aria-expanded", "false");
+          b.append(
+            el("span", null, d.title),
+            el("span", "msg", d.msg),
+            el("small", null, "tap to open ✨"),
+          );
+          b.onclick = () => {
+            const o = b.classList.toggle("open");
+            b.setAttribute("aria-expanded", o);
+          };
+          c.appendChild(b);
+        });
+      }
+      function buildEnvs() {
+        const o = $("#ow");
+        o.replaceChildren();
+        CFG.openWhen.forEach((d) => {
+          const w = el("div", "oe");
+          const b = el("button", "oe");
+          b.style.cssText = "background:none;width:100%";
+          b.type = "button";
+          b.setAttribute("aria-expanded", "false");
+          b.innerHTML = '<div class="e"><span></span></div>';
+          b.querySelector("span").textContent = d.title;
+          const l = el("div", "l", d.msg);
+          w.append(b, l);
+          b.onclick = () => {
+            const x = w.classList.toggle("open");
+            b.setAttribute("aria-expanded", x);
+            if (x) confetti(18);
+          };
+          o.appendChild(w);
+        });
+      }
+      let blown = false;
+      function resetCake() {
+        blown = false;
+        $("#cake").classList.remove("out");
+        $("#wish").classList.remove("on");
+        $("#wish").textContent = "";
+        $("#blow").hidden = false;
+        $("#blow").disabled = false;
+        $("#relight").hidden = true;
+      }
+      $("#blow").onclick = () => {
+        if (blown) return;
+        blown = true;
+        $("#blow").disabled = true;
+        $("#cake").classList.add("out");
+        confetti(110);
+        setTimeout(() => {
+          $("#wish").textContent = CFG.wish + " 🎉";
+          $("#wish").classList.add("on");
+          $("#blow").hidden = true;
+          $("#relight").hidden = false;
+        }, 500);
+      };
+      $("#relight").onclick = resetCake;
+      function buildLetter() {
+        $("#seal").classList.remove("gone");
+        $("#readBtn").hidden = false;
+        const p = $("#paper");
+        p.classList.remove("on");
+        p.replaceChildren(
+          el("h3", null, CFG.letterTitle),
+          ...CFG.letter.map((t) => el("p", null, t)),
+          el("p", "sig", CFG.signature),
+        );
+      }
+      $("#readBtn").onclick = () => {
+        $("#seal").classList.add("gone");
+        $("#readBtn").hidden = true;
+        $("#paper").classList.add("on");
+        confetti(40);
+        setTimeout(
+          () =>
+            $("#paper").scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" }),
+          300,
+        );
+      };
+
+      // ═══ JS · H MUSIC ═══ (no need to edit below unless changing behaviour)
+      let au = null;
+      if (CFG.audio) {
+        $("#mt").textContent = CFG.trackTitle || "Music";
+        $("#music").classList.add("on");
+        $("#mbtn").onclick = () => {
+          if (!au) {
+            au = new Audio(CFG.audio);
+            au.loop = true;
+            au.onerror = () => {
+              $("#music").classList.remove("on", "play");
+            };
+          }
+          if (au.paused) {
+            au.play()
+              .then(() => {
+                $("#music").classList.add("play");
+                $("#mbtn").textContent = "❚❚";
+              })
+              .catch(() => {
+                $("#music").classList.remove("on");
+              });
+          } else {
+            au.pause();
+            $("#music").classList.remove("play");
+            $("#mbtn").textContent = "▶";
+          }
+        };
+        $("#mmute").onclick = () => {
+          if (!au) return;
+          au.muted = !au.muted;
+          $("#mmute").textContent = au.muted ? "🔇" : "🔊";
+        };
+      }
+
+      // ═══ JS · I WELCOME + REPLAY ═══ (no need to edit below unless changing behaviour)
+      $("#openBtn").onclick = () => {
+        $("#openBtn").disabled = true;
+        // Start the music on this click (browsers allow sound after a tap).
+        // To turn this off, delete the next line.
+        if (CFG.audio && (!au || au.paused)) $("#mbtn").click();
+        $("#wenv").classList.add("open");
+        confetti(60);
+        setTimeout(() => {
+          $("#welcome").classList.add("gone");
+          $("#main").hidden = false;
+          document.body.classList.remove("locked");
+          scrollTo(0, 0);
+          observe();
+        }, 1400);
+      };
+      $("#replay").onclick = () => {
+        buildCards();
+        buildEnvs();
+        resetCake();
+        buildLetter();
+        document.querySelectorAll(".rv").forEach((e) => e.classList.remove("in"));
+        $("#main").hidden = true;
+        document.body.classList.add("locked");
+        scrollTo(0, 0);
+        $("#wenv").classList.remove("open");
+        $("#openBtn").disabled = false;
+        $("#welcome").classList.remove("gone");
+        if (au && !au.paused) $("#mbtn").click();
+      };
+
+      // ═══ JS · J SCROLL BAR, BACK-TO-TOP, FADE-IN ═══ (no need to edit below unless changing behaviour)
+      let io;
+      function observe() {
+        io && io.disconnect();
+        io = new IntersectionObserver(
+          (es) =>
+            es.forEach((e) => {
+              if (e.isIntersecting) {
+                e.target.classList.add("in");
+                io.unobserve(e.target);
+              }
+            }),
+          { threshold: 0.12 },
+        );
+        document.querySelectorAll(".rv").forEach((e) => io.observe(e));
+      }
+      addEventListener(
+        "scroll",
+        () => {
+          const h = document.documentElement.scrollHeight - innerHeight;
+          $("#bar").style.width = (h > 0 ? (scrollY / h) * 100 : 0) + "%";
+          $("#top").classList.toggle("on", scrollY > 600);
+        },
+        { passive: true },
+      );
+      $("#top").onclick = () => scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
+
+      buildCards();
+      buildEnvs();
+      resetCake();
+      buildLetter();
+      floaties($("#welcome"), 10);
+      floaties($("#hero"), 8);
+      floaties($("#final"), 10);
+    </script>
+  </body>
+</html>
